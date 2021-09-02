@@ -5,6 +5,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MicroFrontendNavComponent } from './micro-frontend-nav/micro-frontend-nav.component';
 
+import { APP_INITIALIZER } from '@angular/core';
+import { AppConfig }       from '../app.config';
+import { HttpClientModule } from '@angular/common/http';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -12,9 +16,14 @@ import { MicroFrontendNavComponent } from './micro-frontend-nav/micro-frontend-n
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    AppConfig,
+    { provide: APP_INITIALIZER, useFactory: (config: AppConfig) => () => config.load(), deps: [AppConfig], multi: true }
+
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
