@@ -22,7 +22,6 @@ import { HttpClientModule } from '@angular/common/http';
   providers: [
     AppConfig,
     { provide: APP_INITIALIZER, useFactory: (config: AppConfig) => () => config.load(), deps: [AppConfig], multi: true }
-
   ],
   bootstrap: [AppComponent]
 })

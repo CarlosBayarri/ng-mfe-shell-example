@@ -1,17 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { MicroFrontend } from 'ng-module-federation';
-
+import { Data } from '@angular/router';
+export interface MicroFrontend {
+  exposedModule?: string;
+  moduleName?: string;
+  remoteEntry: string;
+  remoteName: string;
+  routeData?: Data;
+  routePath: string;
+}
 @Injectable()
 export class AppConfig {
 
     private microFrontends!: any;
 
-    constructor(private http: HttpClient) {
-
-    }
+    constructor(private http: HttpClient) { }
 
     /**
      * Use to get the list of MFE
@@ -21,12 +24,11 @@ export class AppConfig {
     }
 
     public load() {
-      return this.http.get('https://json.extendsclass.com/bin/ccf23d366fa8').toPromise().then( (response: any) => {
+      return this.http.get('https://api.npoint.io/060c5c41dcc407a098d8').toPromise().then( (response: any) => {
           for (const key in response) {
             if (Object.prototype.hasOwnProperty.call(response, key)) {
-              const element = response[key];
-              const element2 = new MicroFrontend(element.remoteEntry, element.remoteName, element.route, element.ngModuleName)
-              response[key] = element2;
+              const element: MicroFrontend = response[key];
+              response[key] = element;
             }
           }
           this.microFrontends = response;
