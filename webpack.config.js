@@ -14,7 +14,6 @@ module.exports = {
     publicPath: "auto"
   },
   optimization: {
-    // Only needed to bypass a temporary bug
     runtimeChunk: false,
   },
   resolve: {

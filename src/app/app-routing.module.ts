@@ -1,17 +1,8 @@
-import { loadRemoteEntry, loadRemoteModule } from '@angular-architects/module-federation';
+import { loadRemoteEntry } from '@angular-architects/module-federation';
 import { NgModule } from '@angular/core';
-import { Route, Router, RouterModule, Routes } from '@angular/router';
-import { AppConfig, MicroFrontend } from 'src/app.config';
+import { Router, RouterModule, Routes } from '@angular/router';
+import { AppConfig, createMicroFrontendRoute, MicroFrontend } from 'src/app.config';
 
-export const createMicroFrontendRoute = (mfe: MicroFrontend): Route => ({
-  data: mfe.routeData ?? {},
-  path: mfe.routePath,
-  loadChildren: () => loadRemoteModule({
-    remoteEntry: mfe.remoteEntry,
-    remoteName: mfe.remoteName,
-    exposedModule: mfe.exposedModule ?? './Module',
-  }).then((m) => m[mfe.moduleName ?? 'MfeModule']).catch((err)=> console.error(err))
-});
 const mainRutes: Routes = [ ];
 
 @NgModule({
@@ -19,24 +10,20 @@ const mainRutes: Routes = [ ];
   exports: [RouterModule]
 })
 export class AppRoutingModule {
-  constructor( private router: Router, private appConfig: AppConfig ){
-    this.appConfig.load().then(()=> {
-      const microFrontends = this.appConfig.getList();
-      Promise.all([
-        Object.keys(microFrontends).map((m) => loadRemoteEntry(microFrontends[m].remoteEntry, microFrontends[m].remoteName)),
-      ])
-        .catch((err) => console.error('Error loading remote entries', err))
-        .then(() => console.log('done'))
-        .catch((err) => console.error(err));
-        ;
-        this.prepareRoutes(microFrontends)
-    });
 
+  constructor( private router: Router, private appConfig: AppConfig ){
+    this.appConfig.getMFEList().subscribe((list: MicroFrontend[])=> {
+      console.log('List', list);
+      Promise.all([
+        Object.keys(list).map((m: any) => loadRemoteEntry(list[m].remoteEntry, list[m].remoteName)),
+      ]).catch((err) => console.error('Error loading remote entries', err))
+        .then(() => {console.log('Loaded remote entry'); this.prepareRoutes(list)})
+        .catch((err) => console.error(err));
+    });
   }
+
   prepareRoutes( routesJson: any ) {
-    console.log('preparing')
-      const routes: Routes = [...Object.keys(routesJson).map((m) => createMicroFrontendRoute(routesJson[m]))];
-      console.log(routes);
-      this.router.resetConfig( routes );
+    const routes: Routes = [...Object.keys(routesJson).map((m) => createMicroFrontendRoute(routesJson[m]))];
+    this.router.resetConfig( [...mainRutes, ...routes] );
   }
 }

@@ -1,13 +1,10 @@
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { AppConfig } from '../app.config';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MicroFrontendNavComponent } from './micro-frontend-nav/micro-frontend-nav.component';
-
-import { APP_INITIALIZER } from '@angular/core';
-import { AppConfig }       from '../app.config';
-import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -20,8 +17,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppRoutingModule
   ],
   providers: [
-    AppConfig,
-    { provide: APP_INITIALIZER, useFactory: (config: AppConfig) => () => config.load(), deps: [AppConfig], multi: true }
+    AppConfig
   ],
   bootstrap: [AppComponent]
 })
