@@ -11,19 +11,18 @@ const mainRutes: Routes = [ ];
 })
 export class AppRoutingModule {
 
-  constructor( private router: Router, private appConfig: AppConfig ){
+  constructor( private router: Router, private appConfig: AppConfig ) {
     this.appConfig.getMFEList().subscribe((list: MicroFrontend[])=> {
-      console.log('List', list);
       Promise.all([
         Object.keys(list).map((m: any) => loadRemoteEntry(list[m].remoteEntry, list[m].remoteName)),
       ]).catch((err) => console.error('Error loading remote entries', err))
-        .then(() => {console.log('Loaded remote entry'); this.prepareRoutes(list)})
+        .then(() => {this.prepareRoutes(list)})
         .catch((err) => console.error(err));
     });
   }
 
-  prepareRoutes( routesJson: any ) {
-    const routes: Routes = [...Object.keys(routesJson).map((m) => createMicroFrontendRoute(routesJson[m]))];
+  prepareRoutes( routesJson: MicroFrontend[] ) {
+    const routes: Routes = [...Object.keys(routesJson).map((m: any) => createMicroFrontendRoute(routesJson[m]))];
     this.router.resetConfig( [...mainRutes, ...routes] );
   }
 }
